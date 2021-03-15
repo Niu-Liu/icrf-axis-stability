@@ -191,7 +191,8 @@ def calc_ts_oft(souname, coordts):
     """
 
     pos = get_icrf3_pos(souname)
-    #
+    
+    # 
     if pos:
         ra0 = pos["ra"]
         dec0 = pos["dec"]

@@ -55,9 +55,9 @@ for soui in sou["iers_name"]:
 
     # Defining source group
     if soui in def_sou["iers_name"]:
-        type = "D"
+        sou_type = "D"
     else:
-        type = " "
+        sou_type = " "
 
     # Number of sessions
     N = len(ts)
@@ -66,7 +66,7 @@ for soui in sou["iers_name"]:
     dti = ts["mjy"].max() - ts["mjy"].min()
 
     # Add to data line
-    dataline.append("{:8s},{:4d},{:5.1f},{:s}".format(soui, N, dti, type))
+    dataline.append("{:8s},{:4d},{:5.1f},{:s}".format(soui, N, dti, sou_type))
 
     # Eliminate data points that have ratio of offset to formal larger than 10 or offset > 10 mas
     X_ra = ts["dra"] / ts["ra_err"]
@@ -122,10 +122,6 @@ for soui in sou["iers_name"]:
         else:
             dataline.append(",{:4d},{:5.1f},{:+6.3f},{:+6.3f},,,{:5.3f}".format(
                 N2, dti2, wmean_dec, wrms_dec, dec))
-
-    #### TO-DO ####
-    # Allan Variance
-    #### TO-DO ####
 
     print("".join(dataline), file=f_sta)
 
