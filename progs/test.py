@@ -1,48 +1,21 @@
-# Various solutions
-opa2019a = read_crf("../data/ivs-solutions/opa2019a.crf",
-                    drop_few_obs=True, analy_cen="opa")
-asi2020a = read_crf("../data/ivs-solutions/asi2020a.crf",
-                    drop_few_obs=True, analy_cen="asi")
-aus2020b = read_crf("../data/ivs-solutions/aus2020b.crf",
-                    drop_few_obs=True, analy_cen="aus")
-usn2019c = read_crf("../data/ivs-solutions/usn2019c.crf",
-                    drop_few_obs=True, analy_cen="usn")
+# Difference in RA and decl.
+fig, (ax0, ax1) = plt.subplots(figsize=(10, 6), ncols=2, sharex=True, sharey=True)
 
-oft_opa_sx = radio_cat_diff_calc(opa2019a, icrf3sx, sou_name="iers_name")
-oft_opa_sx_def = join(oft_opa_sx, def_list, keys="iers_name")
+# lim = 10
+# x = np.arange(-lim, lim, 0.1)
+# ax0.plot(x, x, "r--", lw=0.5)
+# ax1.plot(x, x, "r--", lw=0.5)
 
-oft_asi_sx = radio_cat_diff_calc(asi2020a, icrf3sx, sou_name="iers_name")
-oft_asi_sx_def = join(oft_asi_sx, def_list, keys="iers_name")
+ax0.plot(com_sou_00_01['used_obs_0'], com_sou_00_01['used_obs_1'], "b.", ms=2)
+ax1.plot(com_sou_00_01['used_ses_0'], com_sou_00_01['used_ses_1'], "b.", ms=2)
 
-oft_aus_sx = radio_cat_diff_calc(aus2020b, icrf3sx, sou_name="iers_name")
-oft_aus_sx_def = join(oft_aus_sx, def_list, keys="iers_name")
+# ax0.axis("square")
+# ax1.axis("square")
+# ax1.axis([-lim, lim, -lim, lim])
 
-oft_usn_sx = radio_cat_diff_calc(usn2019c, icrf3sx, sou_name="iers_name")
-oft_usn_sx_def = join(oft_usn_sx, def_list, keys="iers_name")
+# ax0.set_xlabel('$\Delta\\alpha*$ (2003-c, mas)', fontsize=15)
+# ax0.set_ylabel('$\Delta\\alpha*$ (2004-c, mas)', fontsize=15)
+# ax1.set_xlabel('$\Delta\\delta$ (2003-c, mas)', fontsize=15)
+ax1.set_ylabel('$\Delta\\delta$ (2004-c, mas)', fontsize=15)
 
-    # asi2020a
-    [
-        np.mean(optasi1["R1"]),
-        np.std(optasi1["R1"]),
-        np.mean(optasi1["R2"]),
-        np.std(optasi1["R2"]),
-        np.mean(optasi1["R3"]),
-        np.std(optasi1["R3"])
-    ],
-    # aus2020b
-    [
-        np.mean(optaus1["R1"]),
-        np.std(optaus1["R1"]),
-        np.mean(optaus1["R2"]),
-        np.std(optaus1["R2"]),
-        np.mean(optaus1["R3"]),
-        np.std(optaus1["R3"])
-    ],
-    # usn2019c
-    [
-        np.mean(optusn1["R1"]),
-        np.std(optusn1["R1"]),
-        np.mean(optusn1["R2"]),
-        np.std(optusn1["R2"]),
-        np.mean(optusn1["R3"]),
-        np.std(optusn1["R3"])
+fig.tight_layout()

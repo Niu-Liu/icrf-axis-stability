@@ -18,24 +18,16 @@ from sklearn.utils import resample
 from astropy.table import Table
 from astropy import units as u
 
+from astropy.stats import sigma_clip, mad_std
+
+
 # My progs
 from my_progs.catalog.read_icrf import read_icrf3, read_icrf2
 from my_progs.catalog.pos_diff import radio_cat_diff_calc
-
 from my_progs.vsh.vsh_fit import rotgli_fit_4_table
 
 
 # -----------------------------  FUNCTIONS -----------------------------
-def rot_calc(omega, err):
-    """Calculate the module of a vector
-    """
-
-    w = np.sqrt(np.sum(omega**2))
-    w_err = np.sqrt(np.sum(err**2))
-
-    return w, w_err
-
-
 def bootstrap_sample(tab, sam_size=500, with_replace=True):
     """Randomly select items of some number.
     """
@@ -78,8 +70,16 @@ def vsh_fit_for_pos(pos_oft, print_log=False):
     output = rotgli_fit_4_table(pos_oft, verbose=False)
 
     # Keep rotation only and mas -> uas
-    pmt = output["pmt1"][3:] * 1.e3
-    sig = output["sig1"][3:] * 1.e3
+    pmt = output["pmt1"] * 1.e3
+    sig = output["sig1"] * 1.e3
+
+    # Calculate the total rotation
+    w, w_err = output["R"] * 1.e3, output["R_err"] * 1.e3
+    g, g_err = output["G"] * 1.e3, output["G_err"] * 1.e3
+
+    # Concatenate the results
+    pmt = np.hstack((pmt, [g, w]))
+    sig = np.hstack((sig, [g_err, w_err]))
 
     # Print resultss
     if print_log:
@@ -91,7 +91,7 @@ def vsh_fit_for_pos(pos_oft, print_log=False):
               "  %+4.0f +/- %3.0f  %+4.0f +/- %3.0f  %+4.0f +/- %3.0f\n"
               "----------------------------------------------\n" %
               (len(pos_oft),
-               pmt[0], sig[0], pmt[1], sig[1], pmt[2], sig[2]))
+               pmt[3], sig[3], pmt[4], sig[4], pmt[5], sig[5]))
 
     return pmt, sig
 
@@ -126,9 +126,11 @@ def orient_angle_sampling(pos_oft, iter_time=1000, sam_size=2000, with_replace=F
     """Orientation angle sampling.
     """
 
-    # Array to store data in the form of [r1, r2, r3, sig1, sig2, sig3]
-    opt = np.empty(dtype=np.float, shape=(6,))  # For all sources
-    opt1 = np.empty(dtype=np.float, shape=(6,))  # For a clean sample
+    # Array to store data in the form of
+    # [g1, g2, g3, r1, r2, r3, g, r,
+    # sig_r1, sig_r2, sig_r3, sig_g1, sig_g2, sig_g3, sig_g, sig_r]
+    opt = np.empty(dtype=np.float, shape=(16,))  # For all sources
+    opt1 = np.empty(dtype=np.float, shape=(16,))  # For a clean sample
 
     for i in range(iter_time):
         print(">>>>{:4d}th iteration:".format(i+1), end="")
@@ -146,7 +148,11 @@ def orient_angle_sampling(pos_oft, iter_time=1000, sam_size=2000, with_replace=F
 
 
 def save_data(data, fname):
-    tab = Table(data, names=["R1", "R2", "R3", "R1_err", "R2_err", "R3_err"])
+    tab = Table(data, names=["G1", "G2", "G3", "R1", "R2", "R3",
+                             "G", "R",
+                             "G1_err", "G2_err", "G3_err",
+                             "R1_err", "R2_err", "R3_err",
+                             "G_err", "R_err"])
     tab.write(fname, overwrite=True)
 
 
@@ -157,17 +163,18 @@ def vsh_fit_for_pm(apm_table):
     output = rotgli_fit_4_table(apm_table, verbose=False)
 
     # Keep rotation only
-    pmt = output["pmt1"][3:]
-    sig = output["sig1"][3:]
+    pmt = output["pmt1"]
+    sig = output["sig1"]
 
     # Calculate the total rotation
-    w, w_err = rot_calc(pmt, sig)
+    w, w_err = output["R"], output["R_err"]
+    g, g_err = output["G"], output["G_err"]
 
     # Concatenate the results
-    pmt = np.hstack((pmt, [w]))
-    sig = np.hstack((sig, [w_err]))
+    pmt = np.hstack((pmt[3:], [w], pmt[:3], [g]))
+    sig = np.hstack((sig[3:], [w_err], sig[:3], [g_err]))
 
-    return pmt, sig
+    return pmt, sig, output
 
 
 def vsh_fit_for_pm2(apm_table):
@@ -183,12 +190,23 @@ def vsh_fit_for_pm2(apm_table):
     sig = output["sig1"]
 
     # Calculate the total rotation
-    w, w_err = rot_calc(pmt, sig)
+    w, w_err = output["R"], output["R_err"]
 
     # Concatenate the results
     pmt = np.hstack((pmt, [w]))
     sig = np.hstack((sig, [w_err]))
 
-    return pmt, sig
+    return pmt, sig, output
+
+
+def calc_mean_std(y):
+    """Esimate robustly the mean and standard deviation
+    """
+
+    filtered_data = sigma_clip(y, sigma=3, maxiters=1, stdfunc=mad_std)
+    ymean, ystd = np.mean(filtered_data), np.std(filtered_data)
+
+    return ymean, ystd
+
 
 # --------------------------------- END --------------------------------

@@ -27,10 +27,14 @@ def calc_wmean(x, err):
 
 
 # Source list
-sou = Table.read("../data/ts-sou.list", format="ascii")
+# sou = Table.read("../data/ts-sou.list", format="ascii")
+# sou = Table.read("../data/sou-ts-glo.list", format="ascii")
+sou = Table.read("../data/ts-sou-nju.list", format="ascii")
 
 # Output
-f_out = open("../data/yearly-mean-position-from-ts.txt", "w")
+# f_out = open("../data/yearly-mean-position-from-ts.txt", "w")
+# f_out = open("../data/yearly-mean-position-from-ts-glo.txt", "w")
+f_out = open("../data/yearly-mean-position-from-ts-nju.txt", "w")
 
 print("iers_name, year, num_ses, ra, ra_err, dec, dec_err, ra_dec_corr", file=f_out)
 
@@ -41,7 +45,10 @@ i = 0
 for soui in sou["iers_name"]:
 
     print("Processing source {:s} [{:4d}/{:4d}]".format(soui, i+1, N))
-    ts = get_ts(soui)
+
+    # ts = get_ts(soui)
+    # ts = get_ts(soui, "/Users/Neo/Astronomy/data/vlbi/opa/ts-sou-from-glo")
+    ts = get_ts(soui, "/Users/Neo/Astronomy/data/vlbi/nju/series/ts")
 
     # Caculate the annual mean position
     for year in range(1979, 2021):
@@ -61,13 +68,17 @@ for soui in sou["iers_name"]:
 f_out.close()
 
 # Generate yearly CRF
-pos_tab = Table.read("../data/yearly-mean-position-from-ts.txt", format="ascii")
+# pos_tab = Table.read("../data/yearly-mean-position-from-ts.txt", format="ascii")
+# pos_tab = Table.read("../data/yearly-mean-position-from-ts-glo.txt", format="ascii")
+pos_tab = Table.read("../data/yearly-mean-position-from-ts-nju.txt", format="ascii")
 for year in np.arange(1979, 2021):
     mask = (pos_tab["year"] == year)
     sub_tab = pos_tab[mask]
 
     if len(sub_tab):
-        sub_tab.write("../data/yearly-ts/{:d}.dat".format(year),
+        # sub_tab.write("../data/yearly-ts/{:d}.dat".format(year),
+        # sub_tab.write("../data/yearly-ts-glo/{:d}.dat".format(year),
+        sub_tab.write("../data/yearly-ts-nju/{:d}.dat".format(year),
                       format="ascii.csv", overwrite=True)
 
 # --------------------------------- END --------------------------------

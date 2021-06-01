@@ -18,7 +18,9 @@ from linear_fit import linfit2d
 
 
 # --------------------------------- MAINS --------------------------------
-ts_stats = Table.read("../logs/ts_stat_20210315.log", format="ascii")
+# ts_stats = Table.read("../logs/ts_stat_20210315.log", format="ascii")
+# ts_stats = Table.read("../logs/ts_stat_glo_20210315.log", format="ascii")
+ts_stats = Table.read("../logs/ts_stat_nju_20210531.log", format="ascii")
 
 # First, we removed all sources with num_ses < 5
 mask = (ts_stats["num_ses"] >= 5)
@@ -27,9 +29,14 @@ ts_stats = ts_stats[mask]
 # Store results
 # f_sta = open("../logs/ts_pm_fit.dat", "w")
 # f_sta = open("../logs/ts_pm_fit_1sigma.dat", "w")
-f_sta = open("../logs/ts_pm_fit_3sigma.dat", "w")
+# f_sta = open("../logs/ts_pm_fit_3sigma.dat", "w")
 # f_sta = open("../logs/ts_pm_fit_5sigma.dat", "w")
 # f_sta = open("../logs/ts_pm_fit_10sigma.dat", "w")
+
+f_sta = open("../logs/ts_glo_pm_fit_3sigma.dat", "w")
+# f_sta = open("../logs/ts_nju_pm_fit_3sigma.dat", "w")
+
+
 print("iers_name, num_cln, num_outl, outl_ra, outl_dec, ra, dec, "
       "pmra, pmdec, pmra_err, pmdec_err, pmra_pmdec_cor", file=f_sta)
 
@@ -44,7 +51,12 @@ for soui, rai, deci in ts_stats["iers_name", "mean_ra", "mean_dec"]:
     # Add source name to data line
     dataline.append("{:8s}".format(soui))
 
-    ts = get_ts(soui)
+    # ts = get_ts(soui)
+    ts = get_ts(soui, "/Users/Neo/Astronomy/data/vlbi/opa/ts-sou-from-glo")
+    # ts = get_ts(soui, "/Users/Neo/Astronomy/data/vlbi/nju/series/ts")
+
+    # Only keep data point before 2021
+    ts = ts[ts["jyear"] < 2021]
     fac = np.cos(np.deg2rad(deci))
     dra = (ts["ra"] - rai) * 3.6e6 * fac  # Degree -> mas
     ddec = (ts["dec"] - deci) * 3.6e6  # Degree -> mas

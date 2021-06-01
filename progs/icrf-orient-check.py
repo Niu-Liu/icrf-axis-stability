@@ -20,7 +20,7 @@ from my_progs.catalog.pos_diff import radio_cat_diff_calc
 from tool_func import orient_angle_sampling, save_data
 
 # -----------------------------  FUNCTIONS -----------------------------
-np.random.seed(2)
+np.random.seed(3)
 
 icrf2 = read_icrf2()
 icrf3sx = read_icrf3(wv="sx")
@@ -30,6 +30,8 @@ gedr3 = read_edr3_icrf_sou()
 
 # Various solutions
 opa2019a = read_crf("../data/ivs-solutions/opa2019a.crf",
+                    drop_few_obs=True, analy_cen="opa")
+opa2021a = read_crf("../data/ivs-solutions/opa2021a.crf",
                     drop_few_obs=True, analy_cen="opa")
 asi2020a = read_crf("../data/ivs-solutions/asi2020a.crf",
                     drop_few_obs=True, analy_cen="asi")
@@ -44,14 +46,18 @@ oft_ka_sx = radio_cat_diff_calc(icrf3xka, icrf3sx, sou_name="iers_name")
 oft_g_sx = radio_cat_diff_calc(gedr3, icrf3sx, sou_name="iers_name")
 
 oft_opa_sx = radio_cat_diff_calc(opa2019a, icrf3sx, sou_name="iers_name")
+oft_opa_sx1 = radio_cat_diff_calc(opa2021a, icrf3sx, sou_name="iers_name")
 oft_asi_sx = radio_cat_diff_calc(asi2020a, icrf3sx, sou_name="iers_name")
 oft_aus_sx = radio_cat_diff_calc(aus2020b, icrf3sx, sou_name="iers_name")
 oft_usn_sx = radio_cat_diff_calc(usn2019c, icrf3sx, sou_name="iers_name")
 
+oft_k_g = radio_cat_diff_calc(icrf3k, gedr3, sou_name="iers_name")
+oft_ka_g = radio_cat_diff_calc(icrf3xka, gedr3, sou_name="iers_name")
+
 # Do sampling of the orientation angle
 # Sample size is around 66.7% of the common sources
 # ------------------------------------
-# 1) sampling without replacement
+# 1) wrt. ICRF3 SX
 
 # ICRF2 vs. ICRF3 SX
 # 3410 * 2 / 3 = 2273.3
@@ -88,6 +94,13 @@ opt, opt1 = orient_angle_sampling(oft_opa_sx, sam_size=3000)
 save_data(opt, "../logs/opa2019a_icrf3sx_orient.fits")
 save_data(opt1, "../logs/opa2019a_icrf3sx_orient_cln.fits")
 
+# opa2021a vs. ICRF3 SX
+# 4490 * 2 / 3 = 2993.3
+print("\n\nopa2019a - ICRF3 SX:")
+opt, opt1 = orient_angle_sampling(oft_opa_sx1, sam_size=3000)
+save_data(opt, "../logs/opa2021a_icrf3sx_orient.fits")
+save_data(opt1, "../logs/opa2021a_icrf3sx_orient_cln.fits")
+
 # asi2020a vs. ICRF3 SX
 # 4296 * 2 / 3 = 2864
 print("\n\nasi2020a - ICRF3 SX:")
@@ -110,32 +123,19 @@ save_data(opt, "../logs/usn2019c_icrf3sx_orient.fits")
 save_data(opt1, "../logs/usn2019c_icrf3sx_orient_cln.fits")
 
 # ------------------------------------
-# 2) sampling with replacement
-# ICRF2 vs. ICRF3 SX
-# 3410 * 2 / 3 = 2273.3
-# print("ICRF2 - ICRF3 SX:")
-# opt2, opt21 = orient_angle_sampling(oft_2_sx, sam_size=2275, with_replace=True)
-# save_data(opt2, "../logs/icrf2_icrf3sx_orient_norep.fits")
-# save_data(opt21, "../logs/icrf2_icrf3sx_orient_cln_norep.fits")
+# 2) wrt. Gaia EDR3
 
-# ICRF3 K vs. ICRF3 SX
-# 793 * 2 / 3 = 528.6
-# print("\n\nICRF3 K - ICRF3 SX:")
-# optk, optk1 = orient_angle_sampling(oft_k_sx, sam_size=530, with_replace=True)
-# save_data(optk, "../logs/icrf3k_icrf3sx_orient_norep.fits")
-# save_data(optk1, "../logs/icrf3k_icrf3sx_orient_cln_norep.fits")
+# ICRF3 K vs. Gaia EDR3
+# 660 * 2 / 3 = 440
+print("\n\nICRF3 K - Gaia EDR3:")
+optk, optk1 = orient_angle_sampling(oft_k_g, sam_size=450, with_replace=True)
+save_data(optk, "../logs/icrf3k_gedr3_orient_norep.fits")
+save_data(optk1, "../logs/icrf3k_gedr3_orient_cln_norep.fits")
 
-# ICRF3 XKa vs. ICRF3 SX
-# 638 * 2 / 3 = 425.3
-# print("\n\nICRF3 XKa - ICRF3 SX:")
-# optka, optka1 = orient_angle_sampling(oft_ka_sx, sam_size=425, with_replace=True)
-# save_data(optka, "../logs/icrf3xka_icrf3sx_orient_norep.fits")
-# save_data(optka1, "../logs/icrf3xka_icrf3sx_orient_cln_norep.fits")
-
-# opa2019a vs. ICRF3 SX
-# 4380 * 2 / 3 = 2920
-# print("\n\nopa2019a - ICRF3 SX:")
-# opt, opt1 = orient_angle_sampling(oft_opa_sx, sam_size=2920, with_replace=True)
-# save_data(opt, "../logs/opa2019a_icrf3sx_orient_norep.fits")
-# save_data(opt1, "../logs/opa2019a_icrf3sx_orient_cln_norep.fits")
+# ICRF3 XKa vs. # print("\n\nICRF3 K - Gaia EDR3:")
+# 576 * 2 / 3 = 384
+print("\n\nICRF3 XKa - ICRF3 SX:")
+optka, optka1 = orient_angle_sampling(oft_ka_g, sam_size=400, with_replace=True)
+save_data(optka, "../logs/icrf3xka_gedr3_orient_norep.fits")
+save_data(optka1, "../logs/icrf3xka_gedr3_orient_cln_norep.fits")
 # --------------------------------- END --------------------------------
