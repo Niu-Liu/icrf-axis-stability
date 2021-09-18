@@ -20,9 +20,32 @@ np.random.seed(3)
 
 
 # -----------------------------  MAIN -----------------------------
-# apm_tab = Table.read("../logs/ts_pm_fit_3sigma.dat", format="ascii.csv")
-# apm_tab = Table.read("../logs/ts_glo_pm_fit_3sigma.dat", format="ascii.csv")
-apm_tab = Table.read("../logs/ts_nju_pm_fit_3sigma.dat", format="ascii.csv")
+# ts_type = "opa_glo"
+# ts_type = "opa_ind"
+# ts_type = "nju_glo_10step"
+ts_type = "nju_glo_20step"
+
+if ts_type == "opa_ind":
+    pm_file = "../logs/ts_pm_fit_3sigma.dat"
+    spin_file = "../logs/spin_fit.txt"
+elif ts_type == "opa_glo":
+    g
+    pm_file = "../logs/ts_glo_pm_fit_3sigma.dat"
+    spin_file = "../logs/spin_fit_from_glo_ts.txt"
+elif ts_type == "nju_glo_4step":
+    pm_file = "../logs/ts_nju_pm_fit_3sigma.dat"
+    spin_file = "../logs/spin_fit_from_nju_ts.txt"
+elif ts_type == "nju_glo_8step":
+    pm_file = "../logs/ts_nju_pm_fit_3sigma-8step.dat"
+    spin_file = "../logs/spin_fit_from_glo_ts-8step.txt"
+elif ts_type == "nju_glo_10step":
+    pm_file = "../logs/ts_nju_pm_fit_3sigma-10step.dat"
+    spin_file = "../logs/spin_fit_from_glo_ts-10step.txt"
+elif ts_type == "nju_glo_20step":
+    pm_file = "../logs/ts_nju_pm_fit_3sigma-20step.dat"
+    spin_file = "../logs/spin_fit_from_glo_ts-20step.txt"
+
+apm_tab = Table.read(pm_file, format="ascii.csv")
 
 # convert mas/yr into muas/yr
 apm_tab["pmra"] = apm_tab["pmra"] * 1e3
@@ -35,9 +58,7 @@ mask = apm_tab["num_cln"] >= 5
 apm_tab = apm_tab[mask]
 
 # Output file
-# with open("../logs/spin_fit.txt", "w") as f_out:
-# with open("../logs/spin_fit_from_glo_ts.txt", "w") as f_out:
-with open("../logs/spin_fit_from_nju_ts.txt", "w") as f_out:
+with open(spin_file, "w") as f_out:
 
     # Print header information
     print("num_sou, "

@@ -26,15 +26,54 @@ def calc_wmean(x, err):
     return wmean, wmerr
 
 
+ts_type = "nju_glo_20step"
+# ts_type = "nju_glo_10step"
+# ts_type = "nju_glo_8step"
+# ts_type = "nju_glo_4step"
+max_sigma = 3
+
+if ts_type == "opa_ind":
+    sou_list = "../data/sou-ts.list"
+    ts_dir = "/Users/Neo/Astronomy/data/vlbi/opa/ts-sou"
+    pm_file = "../data/ts_pm_fit_3sigma.dat"
+    mean_pos_file = "../data/yearly-mean-position-from-ts.txt"
+    crf_dir = "../data/yearly-ts"
+elif ts_type == "opa_glo":
+    sou_list = "../data/sou-ts-glo.list"
+    ts_dir = "/Users/Neo/Astronomy/data/vlbi/opa/ts-sou-from-glo"
+    pm_file = "../data/ts_glo_pm_fit_3sigma.dat"
+    mean_pos_file = "../data/yearly-mean-position-from-ts-glo.txt"
+    crf_dir = "../data/yearly-ts-glo"
+elif ts_type == "nju_glo_4step":
+    ts_dir = "/Users/Neo/Astronomy/data/vlbi/nju/series-4step"
+    sou_list = "{}/sou_list_4_ts.txt".format(ts_dir)
+    pm_file = "../data/ts_nju_pm_fit_{}sigma.dat".format(max_sigma)
+    mean_pos_file = "../data/yearly-mean-position-from-ts-nju.txt"
+    crf_dir = "../data/yearly-ts-nju"
+elif ts_type == "nju_glo_8step":
+    ts_dir = "/Users/Neo/Astronomy/data/vlbi/nju/series-8step"
+    sou_list = "{}/sou_list_4_ts.txt".format(ts_dir)
+    pm_file = "../data/ts_nju_pm_fit_{}sigma-8step.dat".format(max_sigma)
+    mean_pos_file = "../data/yearly-mean-position-from-ts-nju-8step.txt"
+    crf_dir = "../data/yearly-ts-nju-8step"
+elif ts_type == "nju_glo_10step":
+    ts_dir = "/Users/Neo/Astronomy/data/vlbi/nju/series-10step"
+    sou_list = "{}/sou_list_4_ts.txt".format(ts_dir)
+    pm_file = "../data/ts_nju_pm_fit_{}sigma-10step.dat".format(max_sigma)
+    mean_pos_file = "../data/yearly-mean-position-from-ts-nju-10step.txt"
+    crf_dir = "../data/yearly-ts-nju-10step"
+elif ts_type == "nju_glo_20step":
+    ts_dir = "/Users/Neo/Astronomy/data/vlbi/nju/series-20step"
+    sou_list = "{}/sou_list_4_ts.txt".format(ts_dir)
+    pm_file = "../data/ts_nju_pm_fit_{}sigma-20step.dat".format(max_sigma)
+    mean_pos_file = "../data/yearly-mean-position-from-ts-nju-20step.txt"
+    crf_dir = "../data/yearly-ts-nju-20step"
+
 # Source list
-# sou = Table.read("../data/ts-sou.list", format="ascii")
-# sou = Table.read("../data/sou-ts-glo.list", format="ascii")
-sou = Table.read("../data/ts-sou-nju.list", format="ascii")
+sou = Table.read(sou_list, format="ascii")
 
 # Output
-# f_out = open("../data/yearly-mean-position-from-ts.txt", "w")
-# f_out = open("../data/yearly-mean-position-from-ts-glo.txt", "w")
-f_out = open("../data/yearly-mean-position-from-ts-nju.txt", "w")
+f_out = open(mean_pos_file, "w")
 
 print("iers_name, year, num_ses, ra, ra_err, dec, dec_err, ra_dec_corr", file=f_out)
 
@@ -46,15 +85,13 @@ for soui in sou["iers_name"]:
 
     print("Processing source {:s} [{:4d}/{:4d}]".format(soui, i+1, N))
 
-    # ts = get_ts(soui)
-    # ts = get_ts(soui, "/Users/Neo/Astronomy/data/vlbi/opa/ts-sou-from-glo")
-    ts = get_ts(soui, "/Users/Neo/Astronomy/data/vlbi/nju/series/ts")
+    ts = get_ts(soui, ts_dir)
 
     # Caculate the annual mean position
     for year in range(1979, 2021):
         ts2 = ts[((ts["jyear"] >= year) & (ts["jyear"] < year+1))]
 
-        if len(ts2):
+        if len(ts2) >= 3:
             ra0, ra0_err = calc_wmean(ts2["ra"], ts2["ra_err"])
             dc0, dc0_err = calc_wmean(ts2["dec"], ts2["dec_err"])
             ra_dec_cor = np.median(ts2["ra_dec_corr"])
@@ -68,17 +105,13 @@ for soui in sou["iers_name"]:
 f_out.close()
 
 # Generate yearly CRF
-# pos_tab = Table.read("../data/yearly-mean-position-from-ts.txt", format="ascii")
-# pos_tab = Table.read("../data/yearly-mean-position-from-ts-glo.txt", format="ascii")
-pos_tab = Table.read("../data/yearly-mean-position-from-ts-nju.txt", format="ascii")
+pos_tab = Table.read(mean_pos_file, format="ascii")
 for year in np.arange(1979, 2021):
     mask = (pos_tab["year"] == year)
     sub_tab = pos_tab[mask]
 
     if len(sub_tab):
-        # sub_tab.write("../data/yearly-ts/{:d}.dat".format(year),
-        # sub_tab.write("../data/yearly-ts-glo/{:d}.dat".format(year),
-        sub_tab.write("../data/yearly-ts-nju/{:d}.dat".format(year),
+        sub_tab.write("{:s}/{:d}.dat".format(crf_dir, year),
                       format="ascii.csv", overwrite=True)
 
 # --------------------------------- END --------------------------------
