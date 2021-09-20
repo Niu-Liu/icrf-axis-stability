@@ -11,20 +11,15 @@ Some tool functions. The comment will be added when I am free.
 """
 
 
-import numpy as np
-# scikit-learn bootstrap
-from sklearn.utils import resample
-
-from astropy.table import Table
-from astropy import units as u
-
-from astropy.stats import sigma_clip, mad_std
-
-
-# My progs
-from my_progs.catalog.read_icrf import read_icrf3, read_icrf2
-from my_progs.catalog.pos_diff import radio_cat_diff_calc
 from my_progs.vsh.vsh_fit import rotgli_fit_4_table
+from my_progs.catalog.pos_diff import radio_cat_diff_calc
+from my_progs.catalog.read_icrf import read_icrf3, read_icrf2
+from astropy.stats import sigma_clip, mad_std
+from astropy import units as u
+from astropy.table import Table
+from sklearn.utils import resample
+import numpy as np
+# np.random.seed(28)
 
 
 # -----------------------------  FUNCTIONS -----------------------------
@@ -46,6 +41,8 @@ def sample_clean(pos_oft, rho0=10, print_log=False):
     # Remove the outlier (consider the normalized separation)
     N0 = len(pos_oft)
     X0 = np.sqrt(np.log(N0) * 2)
+    X0 = 10000000
+    rho0 = 1000000
 
     mask = ((pos_oft["nor_sep"] <= X0)
             & (pos_oft["ang_sep"] < rho0))
@@ -106,6 +103,16 @@ def calc_orient(pos_oft):
     pmt, sig = vsh_fit_for_pos(pos_oft_cln)
 
     return N0, N1, pmt, sig
+
+
+def calc_orient_new(pos_oft):
+    """Calculate orientation angles based on positional difference
+    """
+
+    N0 = len(pos_oft)
+    pmt, sig = vsh_fit_for_pos(pos_oft)
+
+    return N0, pmt, sig
 
 
 def orientation_estimate(pos_oft, opt, clean=False):
@@ -208,5 +215,33 @@ def calc_mean_std(y):
 
     return ymean, ystd
 
+
+def random_walk(epoch, t_scale=5, sigma_var=2):
+    """
+    """
+
+    dt = epoch[1:] - epoch[:-1]
+    dt = np.concatenate(([0], dt))
+
+    # Positional offset
+    dra = np.zeros(len(epoch))
+    ddec = np.zeros(len(epoch))
+
+    dra[0] = np.random.random() - 0.5
+    ddec[0] = np.random.random() - 0.5
+
+    for i in range(len(epoch)):
+        # Exponential factor
+        exp_fac_i = np.exp(-dt[i]/t_scale)
+
+        # Gaussian factor
+        sigma_i = sigma_var * np.sqrt(1-np.exp(-2*dt[i]/t_scale))
+        g_ra_i = (np.random.random_sample()-0.5) * sigma_i
+        g_dec_i = (np.random.random_sample()-0.5) * sigma_i
+
+        dra[i] = exp_fac_i * dra[i-1] + g_ra_i
+        ddec[i] = exp_fac_i * ddec[i-1] + g_dec_i
+
+    return dra, ddec
 
 # --------------------------------- END --------------------------------

@@ -11,19 +11,19 @@ radio sources.
 """
 
 import numpy as np
-
-from astropy.table import Table
-
+from astropy.table import Table, join
 from tool_func import vsh_fit_for_pm, bootstrap_sample
 
-np.random.seed(3)
+np.random.seed(28)
 
 
 # -----------------------------  MAIN -----------------------------
 # ts_type = "opa_glo"
 # ts_type = "opa_ind"
-# ts_type = "nju_glo_10step"
-ts_type = "nju_glo_20step"
+# ts_type = "nju_glo_4step"
+# ts_type = "nju_glo_8step"
+ts_type = "nju_glo_10step"
+# ts_type = "nju_glo_20step"
 
 if ts_type == "opa_ind":
     pm_file = "../logs/ts_pm_fit_3sigma.dat"
@@ -33,19 +33,24 @@ elif ts_type == "opa_glo":
     pm_file = "../logs/ts_glo_pm_fit_3sigma.dat"
     spin_file = "../logs/spin_fit_from_glo_ts.txt"
 elif ts_type == "nju_glo_4step":
-    pm_file = "../logs/ts_nju_pm_fit_3sigma.dat"
+    pm_file = "../data/ts_nju_pm_fit_10sigma.dat"
     spin_file = "../logs/spin_fit_from_nju_ts.txt"
 elif ts_type == "nju_glo_8step":
-    pm_file = "../logs/ts_nju_pm_fit_3sigma-8step.dat"
+    pm_file = "../data/ts_nju_pm_fit_10sigma-8step.dat"
     spin_file = "../logs/spin_fit_from_glo_ts-8step.txt"
 elif ts_type == "nju_glo_10step":
-    pm_file = "../logs/ts_nju_pm_fit_3sigma-10step.dat"
+    pm_file = "../data/ts_nju_pm_fit_10sigma-10step.dat"
     spin_file = "../logs/spin_fit_from_glo_ts-10step.txt"
 elif ts_type == "nju_glo_20step":
-    pm_file = "../logs/ts_nju_pm_fit_3sigma-20step.dat"
+    pm_file = "../data/ts_nju_pm_fit_10sigma-20step.dat"
     spin_file = "../logs/spin_fit_from_glo_ts-20step.txt"
 
+# APM data
 apm_tab = Table.read(pm_file, format="ascii.csv")
+
+# Only ICRF3 defining sources
+icrf3_def = Table.read("../data/icrf3sx-def-sou.txt", format="ascii")
+apm_tab = join(icrf3_def, apm_tab, keys="iers_name")
 
 # convert mas/yr into muas/yr
 apm_tab["pmra"] = apm_tab["pmra"] * 1e3
@@ -69,11 +74,11 @@ with open(spin_file, "w") as f_out:
           "rx_q3, ry_q3, rz_q3, r_q3, gx_q3, gy_q3, gz_q3, g_q3", file=f_out)
 
     # Number of sources to be extracted from the whole sample
-    num_sou = np.arange(100, 1001, 50)
+    num_sou = np.arange(10, 300, 10)
 
     # For each value of num_sou, do the bootstrap resampling and estimate the
-    # global spin. Repeat this procedure 1000 times.
-    num_iter = 1000
+    # global spin. Repeat this procedure 100 times.
+    num_iter = 100
 
     for i, num_soui in enumerate(num_sou):
 
@@ -91,9 +96,9 @@ with open(spin_file, "w") as f_out:
 
         pmt_mean = np.mean(pmt, axis=0)
         pmt_std = np.std(pmt, axis=0)
-        pmt_q1 = np.percentile(pmt, 25, axis=0)
+        pmt_q1 = np.percentile(pmt, 16, axis=0)  # Lower limit for 1-sigma
         pmt_q2 = np.percentile(pmt, 50, axis=0)
-        pmt_q3 = np.percentile(pmt, 75, axis=0)
+        pmt_q3 = np.percentile(pmt, 84, axis=0)  # Upper limit for 1-sigma
 
         print("{:d},{:8.3f},{:8.3f},{:8.3f},{:8.3f},"
               "{:8.3f},{:8.3f},{:8.3f},{:8.3f},"

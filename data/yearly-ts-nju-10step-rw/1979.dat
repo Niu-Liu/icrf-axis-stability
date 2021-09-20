@@ -1,0 +1,2 @@
+iers_name,year,num_ses,ra,ra_err,dec,dec_err,ra_dec_corr
+0552+398,1979,1,88.878357172,0.152,39.8136569587,0.383,-0.489

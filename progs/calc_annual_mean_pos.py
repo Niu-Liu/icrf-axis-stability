@@ -9,6 +9,7 @@ Created on Mon May  4 16:31:15 2020
 
 from astropy.table import Table
 import numpy as np
+
 from my_progs.vlbi.ts_func import get_ts
 
 
@@ -20,17 +21,16 @@ def calc_wmean(x, err):
     if len(x) == 1:
         wmean,  wmerr = x[0], err[0]
     else:
-        wmean = np.dot(x, err**-2) / np.dot(1/err, 1/err)
+        wmean = np.dot(x, err**-2) / np.sum(err**-2)
         wmerr = np.sum(1/err) / np.sum(err**-2)
 
     return wmean, wmerr
 
 
-ts_type = "nju_glo_20step"
-# ts_type = "nju_glo_10step"
+# ts_type = "nju_glo_20step"
+ts_type = "nju_glo_10step"
 # ts_type = "nju_glo_8step"
 # ts_type = "nju_glo_4step"
-max_sigma = 3
 
 if ts_type == "opa_ind":
     sou_list = "../data/sou-ts.list"
@@ -41,31 +41,26 @@ if ts_type == "opa_ind":
 elif ts_type == "opa_glo":
     sou_list = "../data/sou-ts-glo.list"
     ts_dir = "/Users/Neo/Astronomy/data/vlbi/opa/ts-sou-from-glo"
-    pm_file = "../data/ts_glo_pm_fit_3sigma.dat"
     mean_pos_file = "../data/yearly-mean-position-from-ts-glo.txt"
     crf_dir = "../data/yearly-ts-glo"
 elif ts_type == "nju_glo_4step":
     ts_dir = "/Users/Neo/Astronomy/data/vlbi/nju/series-4step"
     sou_list = "{}/sou_list_4_ts.txt".format(ts_dir)
-    pm_file = "../data/ts_nju_pm_fit_{}sigma.dat".format(max_sigma)
     mean_pos_file = "../data/yearly-mean-position-from-ts-nju.txt"
     crf_dir = "../data/yearly-ts-nju"
 elif ts_type == "nju_glo_8step":
     ts_dir = "/Users/Neo/Astronomy/data/vlbi/nju/series-8step"
     sou_list = "{}/sou_list_4_ts.txt".format(ts_dir)
-    pm_file = "../data/ts_nju_pm_fit_{}sigma-8step.dat".format(max_sigma)
     mean_pos_file = "../data/yearly-mean-position-from-ts-nju-8step.txt"
     crf_dir = "../data/yearly-ts-nju-8step"
 elif ts_type == "nju_glo_10step":
     ts_dir = "/Users/Neo/Astronomy/data/vlbi/nju/series-10step"
     sou_list = "{}/sou_list_4_ts.txt".format(ts_dir)
-    pm_file = "../data/ts_nju_pm_fit_{}sigma-10step.dat".format(max_sigma)
     mean_pos_file = "../data/yearly-mean-position-from-ts-nju-10step.txt"
     crf_dir = "../data/yearly-ts-nju-10step"
 elif ts_type == "nju_glo_20step":
     ts_dir = "/Users/Neo/Astronomy/data/vlbi/nju/series-20step"
     sou_list = "{}/sou_list_4_ts.txt".format(ts_dir)
-    pm_file = "../data/ts_nju_pm_fit_{}sigma-20step.dat".format(max_sigma)
     mean_pos_file = "../data/yearly-mean-position-from-ts-nju-20step.txt"
     crf_dir = "../data/yearly-ts-nju-20step"
 
@@ -91,7 +86,7 @@ for soui in sou["iers_name"]:
     for year in range(1979, 2021):
         ts2 = ts[((ts["jyear"] >= year) & (ts["jyear"] < year+1))]
 
-        if len(ts2) >= 3:
+        if len(ts2) >= 1:
             ra0, ra0_err = calc_wmean(ts2["ra"], ts2["ra_err"])
             dc0, dc0_err = calc_wmean(ts2["dec"], ts2["dec_err"])
             ra_dec_cor = np.median(ts2["ra_dec_corr"])

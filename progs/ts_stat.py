@@ -15,12 +15,9 @@ import statsmodels.api as sm
 from my_progs.stat_func.simple_func import wgt_mean_calc
 from my_progs.vlbi.ts_func import get_ts
 
-import os
-cwd = os.getcwd()
-print(cwd)
 
 # --------------------------------- MAINS --------------------------------
-ts_type = "nju_glo_10step"
+ts_type = "nju_glo_20step"
 
 if ts_type == "opa_ind":
     sou_list = "../data/sou-ts.list"
@@ -51,7 +48,8 @@ elif ts_type == "nju_glo_20step":
 with open(stats_file, "w") as f_sta:
 
     print("iers_name, num_ses, obs_len, mean_epoch, beg_epoch, end_epoch, "
-          "mean_ra, sigma_ra, mean_dec, sigma_dec", file=f_sta)
+          "mean_ra, sigma_ra, mean_dec, sigma_dec, med_err_ra, med_err_dec",
+          file=f_sta)
 
     sou = Table.read(sou_list, format="ascii")
     N0 = len(sou)
@@ -85,9 +83,13 @@ with open(stats_file, "w") as f_sta:
         # Degree -> mas
         std_ra = std_ra * 3.6e6
         std_dec = std_dec * 3.6e6
-
         data_line.append(",{:15.10f},{:6.3f},{:+15.10f},{:6.3f}".format(
             mean_ra, std_ra, mean_dec, std_dec))
+
+        # Median formal uncertainty
+        med_err_ra = np.median(ts["ra_err"])
+        med_err_dec = np.median(ts["dec_err"])
+        data_line.append(",{:6.3f},{:6.3f}".format(med_err_ra, med_err_dec))
 
         print("".join(data_line), file=f_sta)
 
