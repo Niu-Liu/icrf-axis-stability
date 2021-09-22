@@ -16,11 +16,11 @@ from linear_fit import linfit2d
 
 
 # --------------------------------- MAINS --------------------------------
-ts_type = "nju_glo_4step"
-# ts_type = "nju_glo_8step"
+# ts_type = "nju_glo_4step"
+ts_type = "nju_glo_8step"
 # ts_type = "nju_glo_10step"
-# ts_type = "nju_glo_20step"
-max_sigma = 10
+ts_type = "nju_glo_20step"
+max_sigma = 5
 
 if ts_type == "opa_ind":
     ts_dir = "/Users/Neo/Astronomy/data/vlbi/opa/ts-sou"

@@ -135,6 +135,7 @@ dmypy.json
 # Ipython checkpoint
 .ipynb_checkpoints/
 progs/.ipynb_checkpoints/
+__pyche__
 
 # Data
 data/

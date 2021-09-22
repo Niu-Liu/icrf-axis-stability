@@ -39,7 +39,7 @@ elif ts_type == "nju_glo_8step":
     pm_file = "../data/ts_nju_pm_fit_10sigma-8step.dat"
     spin_file = "../logs/spin_fit_from_glo_ts-8step.txt"
 elif ts_type == "nju_glo_10step":
-    pm_file = "../data/ts_nju_pm_fit_10sigma-10step.dat"
+    pm_file = "../data/ts_nju_pm_fit_3sigma-10step.dat"
     spin_file = "../logs/spin_fit_from_glo_ts-10step.txt"
 elif ts_type == "nju_glo_20step":
     pm_file = "../data/ts_nju_pm_fit_10sigma-20step.dat"
@@ -74,7 +74,7 @@ with open(spin_file, "w") as f_out:
           "rx_q3, ry_q3, rz_q3, r_q3, gx_q3, gy_q3, gz_q3, g_q3", file=f_out)
 
     # Number of sources to be extracted from the whole sample
-    num_sou = np.arange(10, 300, 10)
+    num_sou = np.arange(10, 290, 10)
 
     # For each value of num_sou, do the bootstrap resampling and estimate the
     # global spin. Repeat this procedure 100 times.
