@@ -129,7 +129,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Cache file from my
+# Cache file from my Mac
 .DS_Store
 
 # Ipython checkpoint
