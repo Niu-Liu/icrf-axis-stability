@@ -8,16 +8,21 @@ Created on Sat Apr 18 13:58:59 2020
 """
 
 import numpy as np
+from numpy import cos, sin, tan
 from astropy.table import Table
 import statsmodels.api as sm
 
 # My progs
-from my_progs.stat_func.simple_func import wgt_mean_calc
-from my_progs.vlbi.ts_func import get_ts
+from myprogs.StatsFunc.simple_func import wgt_mean_calc
+from myprogs.vlbi.ts_func import get_ts
 
 
 # --------------------------------- MAINS --------------------------------
-ts_type = "nju_glo_20step"
+
+# ts_type = "nju_glo_4step"
+# ts_type = "nju_glo_8step"
+ts_type = "nju_glo_10step"
+# ts_type = "nju_glo_20step"
 
 if ts_type == "opa_ind":
     sou_list = "../data/sou-ts.list"
@@ -73,7 +78,23 @@ with open(stats_file, "w") as f_sta:
         data_line.append("{:8s},{:4d},{:5.1f},{:8.2f},{:8.2f},{:8.2f}".format(
             soui, N, dti, mean_epo, tmin, tmax))
 
-        # Mean position
+        # # Mean position
+        # # Apply a global rotation
+        # ra_rad = np.deg2rad(ts["ra"])
+        # dec_rad = np.deg2rad(ts["dec"])
+        #
+        # r1 = 36e-6 / 3600
+        # r2 = -52e-6 / 3600
+        # r3 = -10e-6 / 3600
+        # dra = (-r1*cos(ra_rad) - r2*sin(ra_rad)) * tan(dec_rad) + r3
+        # ddec = r1 * sin(ra_rad) - r2 * cos(ra_rad)
+        #
+        # # RA
+        # mean_ra, std_ra = wgt_mean_calc(ts["ra"]-dra, ts["ra_err"])
+        #
+        # # declination
+        # mean_dec, std_dec = wgt_mean_calc(ts["dec"]-ddec, ts["dec_err"])
+
         # RA
         mean_ra, std_ra = wgt_mean_calc(ts["ra"], ts["ra_err"])
 

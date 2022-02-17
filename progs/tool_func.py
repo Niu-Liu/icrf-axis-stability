@@ -11,9 +11,9 @@ Some tool functions. The comment will be added when I am free.
 """
 
 
-from my_progs.vsh.vsh_fit import rotgli_fit_4_table
-from my_progs.catalog.pos_diff import radio_cat_diff_calc
-from my_progs.catalog.read_icrf import read_icrf3, read_icrf2
+from myprogs.vsh.vsh_fit import rotgli_fit_4_table
+from myprogs.catalog.pos_diff import radio_cat_diff_calc
+from myprogs.catalog.read_icrf import read_icrf3, read_icrf2
 from astropy.stats import sigma_clip, mad_std
 from astropy import units as u
 from astropy.table import Table

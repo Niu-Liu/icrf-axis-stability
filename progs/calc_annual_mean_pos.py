@@ -10,7 +10,7 @@ Created on Mon May  4 16:31:15 2020
 from astropy.table import Table
 import numpy as np
 
-from my_progs.vlbi.ts_func import get_ts
+from myprogs.vlbi.ts_func import get_ts
 
 
 # -----------------------------  FUNCTIONS -----------------------------

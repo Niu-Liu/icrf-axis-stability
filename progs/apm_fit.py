@@ -11,16 +11,18 @@ import numpy as np
 from astropy.table import Table
 
 # My progs
-from my_progs.vlbi.ts_func import get_ts
+from myprogs.vlbi.ts_func import get_ts
 from linear_fit import linfit2d
 
 
 # --------------------------------- MAINS --------------------------------
 # ts_type = "nju_glo_4step"
-ts_type = "nju_glo_8step"
-# ts_type = "nju_glo_10step"
-ts_type = "nju_glo_20step"
-max_sigma = 5
+# ts_type = "nju_glo_8step"
+ts_type = "nju_glo_10step"
+# ts_type = "nju_glo_20step"
+max_sigma = 3
+# max_sigma = 5
+# max_sigma = 10
 
 if ts_type == "opa_ind":
     ts_dir = "/Users/Neo/Astronomy/data/vlbi/opa/ts-sou"
@@ -97,7 +99,8 @@ with open(pm_file, "w") as f_sta:
         num_cln = len(ts1)
         out_tot = len(ts) - num_cln
 
-        dataline.append(",{:4d},{:4d},{:4d},{:4d}".format(num_cln, out_tot, out_ra, out_dec))
+        dataline.append(",{:4d},{:4d},{:4d},{:4d}".format(
+            num_cln, out_tot, out_ra, out_dec))
         dataline.append(",{:8.3f},{:8.3f}".format(rai, deci))
 
         if num_cln < 5:
