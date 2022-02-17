@@ -1,7 +1,7 @@
 # Evaluation of the ICRF stability from a position time series analysis
 ---
 
-Niu Liu (刘牛), S$\'e$bastien Lambert, Filictas Arias, Jia-Cheng Liu (刘佳成), and Zi Zhu (朱紫)
+Niu Liu (刘牛), Sébastien Lambert, Filicitas Arias, Jia-Cheng Liu (刘佳成), and Zi Zhu (朱紫)
 
 
 ## Abstract
